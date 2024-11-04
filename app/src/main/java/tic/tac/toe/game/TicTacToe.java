@@ -3,49 +3,103 @@
  */
 package tic.tac.toe.game;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class TicTacToe 
 {
     public static void main(String[] args) 
     {
-        char[] board = new char[9]; // Creating an array of 9 slots (each slot is a 0)
-        char currentPlayer = 'X'; // First player starts with 'X'
-        boolean gameWon = false;  
-        boolean boardFull = false;  
-
         Scanner scanner = new Scanner(System.in);
-    
-        while (!gameWon && !boardFull) 
-        {
-            printBoard(board);
-            int move = getPlayerMove(currentPlayer, scanner);
+        boolean playAgain = true;
 
-            if (isValidMove(board, move)) 
+        while (playAgain) {
+            System.out.println("Welcome to Tic-Tac-Toe!");
+            int choice = 0;
+
+            // Intro Menu 
+            while (choice != 1 && choice != 2) 
             {
-                board[move - 1] = currentPlayer;
-                gameWon = checkWin(board, currentPlayer); // Checking for win
-                boardFull = isBoardFull(board); // Checking for win
-                if (!gameWon)
-                {
-                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X'; // Switching players
+                System.out.println("Choose an option:");
+                System.out.println("1. Play against a human");
+                System.out.println("2. Play against the computer");
+                
+                if (scanner.hasNextInt()) {
+                    choice = scanner.nextInt();
+                    if (choice != 1 && choice != 2) {
+                        System.out.println("Invalid option. Please select 1 or 2.");
+                    }
+                } 
+                else {
+                    System.out.println("Invalid input. Please enter a number (1 or 2).");
+                    scanner.next(); // Clear the invalid input
                 }
-            } 
-            else 
-            {
-                System.out.println("Invalid move!");
             }
-        }
-    
-        printBoard(board); // Printing board
-    
-        if (gameWon) 
-        {
-            System.out.println("Player " + (currentPlayer == 'X' ? "one" : "two") + " wins!");
-        } 
-        else 
-        {
-            System.out.println("Draw!");
+            
+            // Setting up the board
+            char[] board = new char[9]; // Initializing a new board
+            char currentPlayer = 'X'; // Player one starts with 'X'
+            boolean gameWon = false;
+            boolean boardFull = false;
+            boolean isComputerPlayer = (choice == 2);
+            Random random = new Random();
+
+            while (!gameWon && !boardFull) 
+            {
+                printBoard(board);
+
+                int move = 0;
+                if (isComputerPlayer && currentPlayer == 'O') {
+                    move = getRandomMove(board, random);
+                    System.out.println("Computer chooses move " + move);
+                } 
+                else {
+                    while (true) 
+                    {
+                        System.out.print("Player " + (currentPlayer == 'X' ? "one" : "two") + " - choose a move 1-9! ");
+                        if (scanner.hasNextInt()) {
+                            move = scanner.nextInt();
+                            if (isValidMove(board, move)) {
+                                break;
+                            } 
+                            else {
+                                System.out.println("Invalid move! Please choose an available position between 1 and 9.");
+                            }
+                        } 
+                        else {
+                            System.out.println("Invalid input. Please enter a number between 1 and 9.");
+                            scanner.next(); // Clear the invalid input
+                        }
+                    }
+                }
+
+                board[move - 1] = currentPlayer;
+                gameWon = checkWin(board, currentPlayer);
+                boardFull = isBoardFull(board);
+
+                // if game hasn't been won, switch player
+                if (!gameWon) {
+                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                }
+            }
+
+            printBoard(board);
+
+            if (gameWon) {
+                System.out.println("Player " + (currentPlayer == 'X' ? "one" : (isComputerPlayer ? "Computer" : "two")) + " wins!");
+            } 
+            else {
+                System.out.println("Draw!");
+            }
+
+            // Exit Menu
+            System.out.println("Do you want to play the same game again? (y/n)");
+            char response = scanner.next().toLowerCase().charAt(0);
+            playAgain = (response == 'y');
+
+            if (!playAgain) {
+                System.out.println("Thanks for playing! Goodbye!");
+            }
         }
 
         scanner.close();
@@ -67,18 +121,12 @@ public class TicTacToe
         System.out.println();
     }
 
-    private static int getPlayerMove(char currentPlayer, Scanner scanner) 
-    {
-        System.out.print("Player " + (currentPlayer == 'X' ? "one" : "two") + " - choose a move 1-9! ");
-        return scanner.nextInt();
-    }
-
     private static boolean isValidMove(char[] board, int move) 
     {
         return move >= 1 && move <= 9 && board[move - 1] == 0; // 0 is an untouched spot
     }
 
-    /*Used https://www.geeksforgeeks.org/tic-tac-toe-game-in-java/
+    /* Used https://www.geeksforgeeks.org/tic-tac-toe-game-in-java/
      * for inspiration
      * Author - sakshikulshreshtha
     */
@@ -117,12 +165,10 @@ public class TicTacToe
             }
     
             // Check for winner
-            if (line.equals("XXX")) 
-            {
+            if (line.equals("XXX")) {
                 return true; // X winning
             } 
-            else if (line.equals("OOO")) 
-            {
+            else if (line.equals("OOO")) {
                 return true; // O winning
             }
         }
@@ -135,14 +181,25 @@ public class TicTacToe
     {
         for (char cell : board) 
         {
-            if (cell == 0) 
-            { 
+            if (cell == 0) { 
                 return false; 
             }
         }
 
         return true; 
     }
+
+    private static int getRandomMove(char[] board, Random random) {
+        int move = random.nextInt(9) + 1; // Random number 1 through 9
+        
+        while (!isValidMove(board, move)) 
+        {
+            move = random.nextInt(9) + 1; // generate move until it is valid
+        }
+        
+        return move;
+    }
+    
     
 }
 
