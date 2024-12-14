@@ -39,6 +39,7 @@ public class TicTacToe
                 
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
+                    scanner.nextLine(); // Consuming leftover line
                     if (choice != 1 && choice != 2) {
                         System.out.println("Invalid option. Please select 1 or 2.");
                     }
@@ -70,8 +71,10 @@ public class TicTacToe
                     while (true) 
                     {
                         System.out.print("Player " + (currentPlayer == player1Mark ? "one" : "two") + " - choose a move 1-9! ");
-                        if (scanner.hasNextInt()) {
-                            move = scanner.nextInt();
+                        String userInput = scanner.nextLine().trim(); // fixing issue with "string with spaces"
+                        
+                        if (userInput.matches("\\d+")) {
+                            move = Integer.parseInt(userInput);
                             if (isValidMove(board, move)) {
                                 break;
                             } 
@@ -81,7 +84,6 @@ public class TicTacToe
                         } 
                         else {
                             System.out.println("Invalid input. Please enter a number between 1 and 9.");
-                            scanner.next(); // Clear the invalid input
                         }
                     }
                 }
