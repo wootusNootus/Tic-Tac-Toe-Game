@@ -8,14 +8,27 @@ import java.util.Scanner;
 
 public class TicTacToe 
 {
+    private static final Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) 
     {
-        Scanner scanner = new Scanner(System.in);
         boolean playAgain = true;
 
         while (playAgain) {
             System.out.println("Welcome to Tic-Tac-Toe!");
             int choice = 0;
+
+            // Choosing marks for player 1 and player 2
+            System.out.println("Choose a mark for Player 1:");
+            char player1Mark = getValidatedMark();
+            System.out.println("Choose a mark for Player 2:");
+            char player2Mark = getValidatedMark();
+
+            // Ensure unique marks
+            while (player1Mark == player2Mark) {
+                System.out.println("Marks must be unique! Player 2, choose a different mark:");
+                player2Mark = getValidatedMark();
+            }
 
             // Intro Menu 
             while (choice != 1 && choice != 2) 
@@ -38,7 +51,7 @@ public class TicTacToe
             
             // Setting up the board
             char[] board = new char[9]; // Initializing a new board
-            char currentPlayer = 'X'; // Player one starts with 'X'
+            char currentPlayer = player1Mark; // Player one starts his mark
             boolean gameWon = false;
             boolean boardFull = false;
             boolean isComputerPlayer = (choice == 2);
@@ -49,14 +62,14 @@ public class TicTacToe
                 printBoard(board);
 
                 int move = 0;
-                if (isComputerPlayer && currentPlayer == 'O') {
+                if (isComputerPlayer && currentPlayer == player2Mark) {
                     move = getRandomMove(board, random);
                     System.out.println("Computer chooses move " + move);
                 } 
                 else {
                     while (true) 
                     {
-                        System.out.print("Player " + (currentPlayer == 'X' ? "one" : "two") + " - choose a move 1-9! ");
+                        System.out.print("Player " + (currentPlayer == player1Mark ? "one" : "two") + " - choose a move 1-9! ");
                         if (scanner.hasNextInt()) {
                             move = scanner.nextInt();
                             if (isValidMove(board, move)) {
@@ -79,14 +92,14 @@ public class TicTacToe
 
                 // if game hasn't been won, switch player
                 if (!gameWon) {
-                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                    currentPlayer = (currentPlayer == player1Mark) ? player2Mark : player1Mark;
                 }
             }
 
             printBoard(board);
 
             if (gameWon) {
-                System.out.println("Player " + (currentPlayer == 'X' ? "one" : (isComputerPlayer ? "Computer" : "two")) + " wins!");
+                System.out.println("Player " + (currentPlayer == player1Mark ? "one" : (isComputerPlayer ? "Computer" : "two")) + " wins!");
             } 
             else {
                 System.out.println("Draw!");
@@ -164,12 +177,9 @@ public class TicTacToe
                     break;
             }
     
-            // Check for winner
-            if (line.equals("XXX")) {
-                return true; // X winning
-            } 
-            else if (line.equals("OOO")) {
-                return true; // O winning
+            // Check if the current player's mark forms a winning line
+            if (line.equals("" + currentPlayer + currentPlayer + currentPlayer)) {
+                return true;
             }
         }
     
@@ -199,7 +209,22 @@ public class TicTacToe
         
         return move;
     }
+
+    private static char getValidatedMark() {
+        while (true) {
+            String input = scanner.nextLine().trim();
     
-    
+            if (input.isEmpty()) {
+                System.out.println("Invalid mark. Input cannot be empty.");
+            } 
+            else if (input.length() > 1) {
+                System.out.println("Invalid mark. Mark must be exactly one character.");
+            } 
+            else {
+                return input.charAt(0); // Return the final char
+            }
+        }
+    }
+
 }
 
